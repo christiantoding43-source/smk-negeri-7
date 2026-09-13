@@ -1,0 +1,6 @@
+{
+  "name": "Generator RPP & Modul Ajar Lengkap",
+  "description": "Aplikasi profesional penyusun RPP dan Modul Ajar Kurikulum Merdeka & K13 lengkap dengan Asesmen, LKPD, sintaks pembelajaran, dan ekspor dokumen Word/PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
