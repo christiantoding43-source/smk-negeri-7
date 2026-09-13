@@ -15,9 +15,10 @@ import {
   HelpCircle,
   Sparkles,
   Lightbulb,
+  AlertCircle,
 } from 'lucide-react';
 
-import { RPPData } from '../types';
+import { RPPData, AppUser } from '../types';
 
 interface DocumentViewerProps {
   rpp: RPPData;
@@ -26,6 +27,10 @@ interface DocumentViewerProps {
   onPrint: () => void;
   onRefineSection: (sectionName: string, content: any) => void;
   onOpenSmartSuggestions?: () => void;
+  currentUser?: AppUser;
+  onSubmitForApproval?: () => void;
+  onOpenAdminAudit?: () => void;
+  onViewLembarPengesahan?: () => void;
 }
 
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({
@@ -35,6 +40,10 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   onPrint,
   onRefineSection,
   onOpenSmartSuggestions,
+  currentUser,
+  onSubmitForApproval,
+  onOpenAdminAudit,
+  onViewLembarPengesahan,
 }) => {
 
   const [copied, setCopied] = useState(false);
@@ -147,6 +156,162 @@ ${rpp.lkpd.langkahKerja.map((l, i) => `${i + 1}. ${l}`).join('\n')}
             <span>Cetak / Simpan PDF</span>
           </button>
         </div>
+      </div>
+
+      {/* Accreditation & Approval Status Banner (Hidden in Print) */}
+      <div className="print:hidden">
+        {rpp.statusPersetujuan === 'disetujui' ? (
+          <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white p-4 rounded-xl shadow-xs border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
+                <Award className="w-6 h-6 text-amber-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-sm text-emerald-200">
+                    Dokumen Terverifikasi & Lolos Akreditasi Sekolah
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                    {rpp.evaluasiAkreditasi?.predikat || 'Predikat A (Unggul)'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-200 mt-0.5">
+                  No. Registrasi: <span className="font-mono text-emerald-300 font-semibold">{rpp.evaluasiAkreditasi?.nomorRegistrasi || `REG-AKRED/SMK/2025/RPP-${rpp.id.slice(-4)}`}</span> • Skor: <strong className="text-white">{rpp.evaluasiAkreditasi?.skorTotal || 96}/100</strong> • Disahkan oleh: {rpp.disetujuiOleh || rpp.evaluasiAkreditasi?.peninjauNama || 'Kepala Sekolah & Tim Asesor'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {onViewLembarPengesahan && (
+                <button
+                  type="button"
+                  onClick={onViewLembarPengesahan}
+                  className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Lihat Lembar Pengesahan Resmi</span>
+                </button>
+              )}
+              {currentUser?.role === 'admin' && onOpenAdminAudit && (
+                <button
+                  type="button"
+                  onClick={onOpenAdminAudit}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg text-xs transition-colors"
+                >
+                  Ubah Audit
+                </button>
+              )}
+            </div>
+          </div>
+        ) : rpp.statusPersetujuan === 'diajukan' ? (
+          <div className="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
+                <Clock className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-sm text-amber-900">
+                    Menunggu Verifikasi & Persetujuan Akreditasi
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-amber-200 text-amber-900">
+                    Status: Diajukan
+                  </span>
+                </div>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  Dokumen ini telah diajukan oleh guru pengampu ({rpp.authorName || rpp.namaGuru}) dan sedang menunggu telaah klinis oleh Kepala Sekolah / Asesor Akreditasi.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {currentUser?.role === 'admin' && onOpenAdminAudit ? (
+                <button
+                  type="button"
+                  onClick={onOpenAdminAudit}
+                  className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Audit & Sahkan Akreditasi Sekarang</span>
+                </button>
+              ) : (
+                <span className="text-2xs italic text-amber-800 bg-amber-100/60 px-2.5 py-1 rounded-md border border-amber-200">
+                  Asesor sedang meninjau dokumen
+                </span>
+              )}
+            </div>
+          </div>
+        ) : rpp.statusPersetujuan === 'revisi' ? (
+          <div className="bg-rose-50 border border-rose-200 text-rose-900 p-4 rounded-xl shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-700 shrink-0 mt-0.5">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-rose-900">
+                  Dokumen Memerlukan Perbaikan / Revisi Akreditasi
+                </h4>
+                <p className="text-xs text-rose-800 mt-0.5 font-medium">
+                  Catatan Supervisi Asesor: "{rpp.catatanPersetujuan || rpp.evaluasiAkreditasi?.catatanSupervisi || 'Periksa kembali kelengkapan asesmen dan sintaks pembelajaran aktif.'}"
+                </p>
+                <p className="text-2xs text-rose-600 mt-1">
+                  Silakan perbaiki modul ajar ini melalui tombol "Mode Edit RPP", lalu ajukan kembali.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {onSubmitForApproval && (
+                <button
+                  type="button"
+                  onClick={onSubmitForApproval}
+                  className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <FileCheck className="w-4 h-4" />
+                  <span>Ajukan Ulang Setelah Revisi</span>
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-50 border border-slate-200 text-slate-800 p-3.5 rounded-xl shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-slate-800 block">
+                  Status Dokumen: Draf Guru Pengampu ({rpp.authorName || rpp.namaGuru})
+                </span>
+                <span className="text-2xs text-slate-500">
+                  Belum diajukan ke Tim Asesor Penjaminan Mutu & Akreditasi Satuan Pendidikan.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              {onSubmitForApproval && (
+                <button
+                  type="button"
+                  onClick={onSubmitForApproval}
+                  className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <FileCheck className="w-4 h-4 text-emerald-200" />
+                  <span>Ajukan ke Admin untuk Akreditasi Sekolah</span>
+                </button>
+              )}
+              {currentUser?.role === 'admin' && onOpenAdminAudit && (
+                <button
+                  type="button"
+                  onClick={onOpenAdminAudit}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg text-xs transition-colors"
+                >
+                  Audit Akreditasi Langsung
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* THE OFFICIAL DOCUMENT PAPER */}
@@ -711,10 +876,20 @@ ${rpp.lkpd.langkahKerja.map((l, i) => `${i + 1}. ${l}`).join('\n')}
                 <td className="w-1/2 align-top text-left">
                   <p>Mengetahui,</p>
                   <p className="font-medium">Kepala {rpp.namaSekolah}</p>
-                  <div className="h-20 sm:h-24 flex items-end">
+                  <div className="h-20 sm:h-24 flex items-end relative">
+                    {rpp.statusPersetujuan === 'disetujui' && (
+                      <div className="absolute top-0 left-0 bg-emerald-50 border-2 border-dashed border-emerald-600/70 rounded-lg p-1.5 text-center transform -rotate-3 text-emerald-800">
+                        <span className="block font-sans font-black text-3xs uppercase tracking-wider text-emerald-900">
+                          ★ DISAHKAN AKREDITASI ★
+                        </span>
+                        <span className="block font-mono text-3xs text-emerald-700">
+                          {rpp.evaluasiAkreditasi?.nomorRegistrasi || 'REG-AKRED/2025'}
+                        </span>
+                      </div>
+                    )}
                     <div>
-                      <p className="font-bold underline text-slate-900">{rpp.namaKepalaSekolah}</p>
-                      <p className="text-xs text-slate-600">NIP. {rpp.nipKepalaSekolah || '...........................................'}</p>
+                      <p className="font-bold underline text-slate-900">{rpp.disetujuiOleh || rpp.namaKepalaSekolah}</p>
+                      <p className="text-xs text-slate-600">NIP. {rpp.nipPenyetuju || rpp.nipKepalaSekolah || '...........................................'}</p>
                     </div>
                   </div>
                 </td>

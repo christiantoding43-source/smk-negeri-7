@@ -293,7 +293,12 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({
     } catch (err: any) {
       clearInterval(interval);
       console.error(err);
-      setErrorMsg(err.message || 'Terjadi gangguan jaringan saat menghubungi server AI.');
+      const rawError = String(err?.message || '');
+      if (rawError.includes('503') || rawError.includes('high demand') || rawError.includes('UNAVAILABLE')) {
+        setErrorMsg('Layanan AI Google saat ini sedang mengalami lonjakan antrean trafik tinggi. Silakan klik tombol "Susun RPP Lengkap Sekarang" kembali — sistem akan otomatis mengalihkan ke server siaga.');
+      } else {
+        setErrorMsg(rawError || 'Terjadi kendala saat menghubungi server AI. Silakan coba sesaat lagi.');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -70,3 +70,12 @@ export function duplicateRPP(original: RPPData): RPPData {
   saveRPP(newRPP);
   return newRPP;
 }
+
+export function setAllLocalRPPs(rpps: RPPData[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rpps));
+  } catch (err) {
+    console.error('Error writing all RPPs to localStorage:', err);
+  }
+}
+

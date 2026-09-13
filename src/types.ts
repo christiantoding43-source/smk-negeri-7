@@ -73,10 +73,66 @@ export interface GlosariumItem {
   definisi: string;
 }
 
+export type UserRole = 'guru' | 'admin';
+
+export interface AppUser {
+  id: string; // Firebase uid or local user id
+  username: string;
+  namaLengkap: string;
+  email: string;
+  role: UserRole;
+  nip?: string;
+  mataPelajaran?: string;
+  namaSekolah?: string;
+  jabatan?: string;
+  password?: string;
+}
+
+export type StatusPersetujuan = 'draft' | 'diajukan' | 'disetujui' | 'revisi';
+
+export interface ButirAkreditasiItem {
+  id: string;
+  nomor: number;
+  komponen: string;
+  indikator: string;
+  kriteria: string;
+  terpenuhi: boolean;
+  skor: number; // 1 - 4
+  catatan?: string;
+}
+
+export interface EvaluasiAkreditasi {
+  nomorRegistrasi: string; // e.g. "AKRED-SMK/2025/RPP-042"
+  tanggalReview: string;
+  peninjauNama: string;
+  peninjauNip: string;
+  peninjauJabatan: string;
+  skorTotal: number; // 0 - 100
+  predikat: 'A (Amat Baik / Unggul)' | 'B (Baik / Layak)' | 'C (Cukup)' | 'Perlu Perbaikan';
+  catatanSupervisi: string;
+  butirPenilaian: ButirAkreditasiItem[];
+  statusPersetujuan: StatusPersetujuan;
+}
+
 export interface RPPData {
   id: string;
+  ownerId?: string;
+  authorEmail?: string;
+  authorName?: string;
+  authorNip?: string;
+  authorUsername?: string;
+
+  // Akreditasi & Status Persetujuan
+  statusPersetujuan?: StatusPersetujuan;
+  catatanPersetujuan?: string;
+  disetujuiOleh?: string;
+  nipPenyetuju?: string;
+  tanggalPersetujuan?: string;
+  evaluasiAkreditasi?: EvaluasiAkreditasi;
+
   judul: string;
   kurikulum: KurikulumType;
+
   jenjang: JenjangPendidikan;
   fase: FaseKurikulum;
   kelas: string;
@@ -204,4 +260,15 @@ export interface SmartSuggestionsResponse {
   pertanyaanPemantik: string[];
   ideMediaAjar: string[];
 }
+
+export type SyncState = 'synced' | 'syncing' | 'offline' | 'error';
+
+export interface FirebaseUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  isAnonymous: boolean;
+}
+
 

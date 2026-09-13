@@ -126,6 +126,26 @@ export const SavedRPPList: React.FC<SavedRPPListProps> = ({
                         {rpp.programKeahlian}
                       </span>
                     )}
+                    {/* Akreditasi Status Badge */}
+                    <span
+                      className={`px-2 py-0.5 text-2xs font-bold rounded-full ${
+                        rpp.statusPersetujuan === 'disetujui'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : rpp.statusPersetujuan === 'diajukan'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : rpp.statusPersetujuan === 'revisi'
+                          ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      {rpp.statusPersetujuan === 'disetujui'
+                        ? '⭐ Lolos Akreditasi'
+                        : rpp.statusPersetujuan === 'diajukan'
+                        ? '⏳ Menunggu Telaah'
+                        : rpp.statusPersetujuan === 'revisi'
+                        ? '⚠️ Perlu Revisi'
+                        : 'Draft'}
+                    </span>
                   </div>
                   <h4 className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
                     {rpp.judul}
@@ -133,8 +153,8 @@ export const SavedRPPList: React.FC<SavedRPPListProps> = ({
                   <p className="text-xs text-slate-600 line-clamp-1">
                     {rpp.mataPelajaran} • Topik: {rpp.topikMateri}
                   </p>
-                  <p className="text-2xs text-slate-400">
-                    Sekolah: {rpp.namaSekolah} | Guru: {rpp.namaGuru}
+                  <p className="text-2xs text-slate-500">
+                    Penyusun: <strong className="text-slate-700">{rpp.authorName || rpp.namaGuru}</strong> • {rpp.namaSekolah}
                   </p>
                 </div>
 

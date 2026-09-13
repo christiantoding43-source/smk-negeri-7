@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Account",
+      "description": "User profile for teachers and accreditation admins",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "namaLengkap": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["guru", "admin"] },
+        "nip": { "type": "string" },
+        "mataPelajaran": { "type": "string" },
+        "namaSekolah": { "type": "string" },
+        "jabatan": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "username", "namaLengkap", "role", "updatedAt"]
+    },
+    "RPP": {
+      "title": "RPP Document",
+      "description": "Rencana Pelaksanaan Pembelajaran / Modul Ajar document with accreditation approval tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "authorEmail": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorNip": { "type": "string" },
+        "judul": { "type": "string" },
+        "mataPelajaran": { "type": "string" },
+        "topikMateri": { "type": "string" },
+        "jenjang": { "type": "string" },
+        "kelas": { "type": "string" },
+        "kurikulum": { "type": "string" },
+        "modelPembelajaran": { "type": "string" },
+        "alokasiWaktu": { "type": "string" },
+        "jumlahPertemuan": { "type": "number" },
+        "namaSekolah": { "type": "string" },
+        "namaGuru": { "type": "string" },
+        "nipGuru": { "type": "string" },
+        "namaKepalaSekolah": { "type": "string" },
+        "nipKepalaSekolah": { "type": "string" },
+        "kotaTanggal": { "type": "string" },
+        "statusPersetujuan": { "type": "string", "enum": ["draft", "diajukan", "disetujui", "revisi"] },
+        "catatanPersetujuan": { "type": "string" },
+        "disetujuiOleh": { "type": "string" },
+        "tanggalPersetujuan": { "type": "string" },
+        "evaluasiAkreditasi": { "type": "object" },
+        "capaianPembelajaran": { "type": "string" },
+        "tujuanPembelajaran": { "type": "array" },
+        "dimensiPancasila": { "type": "array" },
+        "saranaPrasarana": { "type": "array" },
+        "targetPesertaDidik": { "type": "string" },
+        "skenarioPertemuan": { "type": "array" },
+        "asesmenDiagnostik": { "type": "object" },
+        "asesmenFormatif": { "type": "object" },
+        "asesmenSumatif": { "type": "object" },
+        "rubrikKktp": { "type": "object" },
+        "lkpd": { "type": "object" },
+        "materiAjarRingkas": { "type": "string" },
+        "glosarium": { "type": "array" },
+        "daftarPustaka": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "ownerId", "judul", "mataPelajaran", "topikMateri", "jenjang", "kelas", "kurikulum", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of teacher and administrator user profiles"
+    },
+    "/rpps/{rppId}": {
+      "schema": "RPP",
+      "description": "Collection of user-created RPP and Modul Ajar documents reviewed for school accreditation"
+    }
+  }
+}

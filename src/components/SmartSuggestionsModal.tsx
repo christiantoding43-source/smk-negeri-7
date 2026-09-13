@@ -108,7 +108,12 @@ export const SmartSuggestionsModal: React.FC<SmartSuggestionsModalProps> = ({
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Gagal mendapatkan saran cerdas dari AI.');
+      const raw = String(err?.message || '');
+      if (raw.includes('503') || raw.includes('high demand') || raw.includes('UNAVAILABLE')) {
+        setErrorMsg('Server AI sedang mengalami antrean trafik tinggi. Silakan ulangi tombol Dapatkan Saran AI.');
+      } else {
+        setErrorMsg(raw || 'Gagal mendapatkan saran cerdas dari AI.');
+      }
     } finally {
       setIsLoading(false);
     }

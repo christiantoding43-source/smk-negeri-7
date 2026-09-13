@@ -62,7 +62,12 @@ export const AIRefineModal: React.FC<AIRefineModalProps> = ({
       setRefinedResult(data.refinedContent);
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Terjadi kesalahan saat memproses permintaan.');
+      const raw = String(err?.message || '');
+      if (raw.includes('503') || raw.includes('high demand') || raw.includes('UNAVAILABLE')) {
+        setErrorMsg('Server AI sedang mengalami lonjakan antrean trafik tinggi. Silakan ulangi instruksi perbaikan.');
+      } else {
+        setErrorMsg(raw || 'Terjadi kesalahan saat memproses permintaan.');
+      }
     } finally {
       setIsLoading(false);
     }
