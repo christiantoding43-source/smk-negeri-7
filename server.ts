@@ -82,6 +82,28 @@ async function callGeminiWithFallback(
   throw lastError;
 }
 
+// Resilient helper to clean markdown backticks and parse JSON safely
+function cleanAndParseJSON(raw: string): any {
+  if (!raw || typeof raw !== 'string') return null;
+  let text = raw.trim();
+  // Strip markdown code fences if present (e.g. ```json ... ``` or ``` ...)
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  }
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    // Attempt to locate outer JSON object braces if extra conversational text is present
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      const extracted = text.substring(firstBrace, lastBrace + 1);
+      return JSON.parse(extracted);
+    }
+    throw err;
+  }
+}
+
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
@@ -350,7 +372,13 @@ Pastikan isi setiap bagian sangat mendalam, detail, dan realistis untuk guru di 
       },
     });
 
-    const parsedData = JSON.parse(rawText || '{}');
+    let parsedData: any = {};
+    try {
+      parsedData = cleanAndParseJSON(rawText || '{}') || {};
+    } catch (parseErr: any) {
+      console.warn('JSON parsing from Gemini output failed, falling back to curriculum generator:', parseErr.message);
+      throw parseErr;
+    }
     const dateFormatted = kotaTanggal || `${namaSekolah.includes('Negeri') ? 'Jakarta' : 'Kota Setempat'}, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
     const completeRPP = {
@@ -583,7 +611,7 @@ Pastikan menyertakan minimal 3 variasi materi ajar mendalam, minimal 3 alternati
         },
       });
 
-      const parsed = JSON.parse(raw || '{}');
+      const parsed = cleanAndParseJSON(raw || '{}') || {};
 
       return res.json({
         success: true,

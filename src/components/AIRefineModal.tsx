@@ -55,9 +55,16 @@ export const AIRefineModal: React.FC<AIRefineModalProps> = ({
           },
         }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Gagal menyempurnakan bagian.');
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        const textFallback = await res.text().catch(() => '');
+        throw new Error(textFallback || 'Server membalas dengan format yang tidak terbaca.');
+      }
+
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.error || 'Gagal menyempurnakan bagian.');
       }
       setRefinedResult(data.refinedContent);
     } catch (err: any) {

@@ -93,9 +93,16 @@ export const SmartSuggestionsModal: React.FC<SmartSuggestionsModalProps> = ({
         }),
       });
 
-      const resJson = await response.json();
-      if (!response.ok || !resJson.success) {
-        throw new Error(resJson.error || 'Gagal memproses saran cerdas.');
+      let resJson: any = null;
+      try {
+        resJson = await response.json();
+      } catch (jsonErr) {
+        const textFallback = await response.text().catch(() => '');
+        throw new Error(textFallback || 'Server membalas dengan respon yang tidak dapat dibaca.');
+      }
+
+      if (!response.ok || !resJson?.success) {
+        throw new Error(resJson?.error || 'Gagal memproses saran cerdas.');
       }
 
       setSuggestions(resJson.data);

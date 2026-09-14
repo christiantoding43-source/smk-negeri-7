@@ -281,11 +281,17 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({
         body: JSON.stringify(payload),
       });
 
-      const resJson = await response.json();
+      let resJson: any = null;
+      try {
+        resJson = await response.json();
+      } catch (jsonErr) {
+        const textFallback = await response.text().catch(() => '');
+        throw new Error(textFallback || 'Server mengembalikan respon yang tidak dapat dibaca.');
+      }
       clearInterval(interval);
 
-      if (!response.ok || !resJson.success) {
-        throw new Error(resJson.error || 'Gagal menyusun RPP. Silakan coba lagi.');
+      if (!response.ok || !resJson?.success) {
+        throw new Error(resJson?.error || 'Gagal menyusun RPP. Silakan coba lagi.');
       }
 
       onSuccess(resJson.data);
